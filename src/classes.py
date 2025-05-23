@@ -152,6 +152,6 @@ class Maze:
     def animate(self):
         if self.win != None:
             self.win.redraw()
-            time.sleep(0.05)
+            time.sleep(0.30)
         
 
