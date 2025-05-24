@@ -168,13 +168,15 @@ class Maze:
         cell = self.__cells[i][j]
         if self.win != None:
             cell.draw(x, y, x + self.cell_size_x, y + self.cell_size_y)
-            self.animate()
+            self._animate()
 
 
-    def animate(self):
+    def _animate(self, timer=0.00):
+        def __init__(self):
+            self.timer = timer
         if self.win != None:
             self.win.redraw()
-            time.sleep(0.01)
+            time.sleep(timer)
         
 
     def __break_entrance_and_exit(self):
@@ -213,6 +215,7 @@ class Maze:
                 need_to_visit.append(top_cell)
             
             if len(need_to_visit) == 0:
+                self.__draw_cell(i,j)
                 return
             next_cell = random.choice(need_to_visit)
             
@@ -241,4 +244,56 @@ class Maze:
             for i in range(self.num_rows):
                 self.__cells[j][i].visited = False
         return
+    
+    def solve(self):
+        self._solve_r(0,0)
+        return self._solve_r(0,0)
+
+    def _solve_r(self, i, j):
+        self._animate(0.02)
+        end_cell = self.__cells[self.num_cols - 1][self.num_rows - 1]
+        current_cell = self.__cells[i][j]
+        current_cell.visited = True
+        
+        if current_cell == end_cell:
+            return True
+
+        # right cell check
+        if i + 1 < self.num_cols and self.__cells[i + 1][j].visited == False and self.__cells[i + 1][j].has_left_wall == False:
+            right_cell = self.__cells[i + 1][j]
+            current_cell.draw_move(right_cell)
+            if self._solve_r(i + 1, j):
+                return True
+            right_cell.draw_move(current_cell, undo=True)
+
+
+        # bottom cell check
+        if j + 1 < self.num_rows and self.__cells[i][j + 1].visited == False and self.__cells[i][j + 1].has_top_wall == False:
+            bottom_cell = self.__cells[i][j + 1]
+            current_cell.draw_move(bottom_cell)
+            if self._solve_r(i, j + 1):
+                return True
+            bottom_cell.draw_move(current_cell, undo=True)
+
+
+        # left cell check
+        if  i - 1 >= 0 and self.__cells[i - 1][j].visited == False and self.__cells[i - 1][j].has_right_wall == False:
+            left_cell = self.__cells[i - 1][j]
+            current_cell.draw_move(left_cell)
+            if self._solve_r(i - 1, j):
+                return True
+            left_cell.draw_move(current_cell, undo=True)
+
+
+        # top cell check
+        if j - 1 >= 0 and self.__cells[i][j - 1].visited == False and self.__cells[i][j - 1].has_bottom_wall == False:
+            top_cell = self.__cells[i][j - 1]
+            current_cell.draw_move(top_cell)
+            if self._solve_r(i, j - 1):
+                return True
+            top_cell.draw_move(current_cell, undo=True)
+        return False
+
+        
+
 
