@@ -55,7 +55,7 @@ class Line:
         )
 
 class Cell:
-    def __init__(self, window: Window | None = None):
+    def __init__(self, window: Window | None = None, i: int | None = None, j: int | None = None):
         #Give the cell walls.
         self.has_left_wall = True
         self.has_right_wall = True
@@ -70,7 +70,8 @@ class Cell:
         self.__win = window
 
         self.visited = False
-    
+        self.i = i
+        self.j = j
 
 
     def draw(self, x1: int | float, y1: int | float, x2: int | float, y2: int | float):
@@ -154,7 +155,8 @@ class Maze:
             for j in range(self.num_rows):
 
                 for i in range(self.num_cols):
-
+                    self.__cells[i][j].i = i
+                    self.__cells[i][j].j = j
                     self.__draw_cell(i, j)
 
 
@@ -172,7 +174,7 @@ class Maze:
     def animate(self):
         if self.win != None:
             self.win.redraw()
-            time.sleep(0.05)
+            time.sleep(0.01)
         
 
     def __break_entrance_and_exit(self):
@@ -189,21 +191,25 @@ class Maze:
         while 1:
 
             need_to_visit = []
+            right_cell = None
+            bottom_cell = None
+            left_cell = None
+            top_cell = None
             # right cell check
-            right_cell = self.__cells[i + 1][j]
-            if right_cell.visited == False:
+            if i + 1 < self.num_cols and self.__cells[i + 1][j].visited == False:
+                right_cell = self.__cells[i + 1][j]
                 need_to_visit.append(right_cell)
             # bottom cell check
-            bottom_cell = self.__cells[i][j + 1]
-            if bottom_cell.visited == False:
+            if j + 1 < self.num_rows and self.__cells[i][j + 1].visited == False:
+                bottom_cell = self.__cells[i][j + 1]
                 need_to_visit.append(bottom_cell)
             # left cell check
-            left_cell = self.__cells[i - 1][j]
-            if left_cell.visited == False:
+            if  i - 1 >= 0 and self.__cells[i - 1][j].visited == False:
+                left_cell = self.__cells[i - 1][j]
                 need_to_visit.append(left_cell)
             # top cell check
-            top_cell = self.__cells[i][j - 1]
-            if top_cell.visited == False:
+            if j - 1 >= 0 and self.__cells[i][j - 1].visited == False:
+                top_cell = self.__cells[i][j - 1]
                 need_to_visit.append(top_cell)
             
             if len(need_to_visit) == 0:
@@ -226,4 +232,13 @@ class Maze:
             if next_cell == top_cell:
                 next_cell.has_bottom_wall = False
                 current_cell.has_top_wall = False
+            self.__draw_cell(i,j)
+            self.__break_walls_r(next_cell.i, next_cell.j)
+
+
+    def __reset_cells_visited(self):
+        for j in range(self.num_cols):
+            for i in range(self.num_rows):
+                self.__cells[j][i].visited = False
+        return
 
