@@ -1,5 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
-import time
+import time, random
 
 
 class Window:
@@ -68,6 +68,8 @@ class Cell:
         self.__y2 = -1
 
         self.__win = window
+
+        self.visited = False
     
 
 
@@ -129,7 +131,8 @@ class Maze:
         num_cols: int,
         cell_size_x: int,
         cell_size_y: int,
-        win: Window | None = None
+        win: Window | None = None,
+        seed: int | None = None
     ):
         
         self.x1 = x1
@@ -141,6 +144,8 @@ class Maze:
         self.win = win
         self.__cells = []
         self.__create_cells()
+        if seed != None:
+            random.seed(seed)
 
 
     def __create_cells(self):
@@ -176,4 +181,49 @@ class Maze:
         self.__cells[self.num_rows - 1][self.num_cols - 1].has_bottom_wall = False
         self.__draw_cell(self.num_rows - 1, self.num_cols - 1)
 
+
+    def __break_walls_r(self, i, j):
+        current_cell = self.__cells[i][j]
+        current_cell.visited = True
+
+        while 1:
+
+            need_to_visit = []
+            # right cell check
+            right_cell = self.__cells[i + 1][j]
+            if right_cell.visited == False:
+                need_to_visit.append(right_cell)
+            # bottom cell check
+            bottom_cell = self.__cells[i][j + 1]
+            if bottom_cell.visited == False:
+                need_to_visit.append(bottom_cell)
+            # left cell check
+            left_cell = self.__cells[i - 1][j]
+            if left_cell.visited == False:
+                need_to_visit.append(left_cell)
+            # top cell check
+            top_cell = self.__cells[i][j - 1]
+            if top_cell.visited == False:
+                need_to_visit.append(top_cell)
+            
+            if len(need_to_visit) == 0:
+                return
+            next_cell = random.choice(need_to_visit)
+            
+            #right cell wallbreak
+            if next_cell == right_cell:
+                next_cell.has_left_wall = False
+                current_cell.has_right_wall = False
+            # bottom cell wallbreak
+            if next_cell == bottom_cell:
+                next_cell.has_top_wall = False
+                current_cell.has_bottom_wall = False
+            # left cell wallbreak
+            if next_cell == left_cell:
+                next_cell.has_right_wall = False
+                current_cell.has_left_wall = False
+            # top cell wallbreak
+            if next_cell == top_cell:
+                next_cell.has_bottom_wall = False
+                current_cell.has_top_wall = False
 
